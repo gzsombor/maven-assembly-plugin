@@ -54,17 +54,17 @@ import org.apache.maven.plugins.assembly.model.ModuleBinaries;
 import org.apache.maven.plugins.assembly.model.ModuleSet;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.DefaultArtifactDescriptorReader;
-import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.codehaus.plexus.PlexusTestCase;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMockSupport;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.impl.ArtifactDescriptorReader;
-import org.sonatype.aether.repository.LocalArtifactRequest;
-import org.sonatype.aether.repository.LocalArtifactResult;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.LocalRepositoryManager;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.impl.ArtifactDescriptorReader;
+import org.eclipse.aether.repository.LocalArtifactRequest;
+import org.eclipse.aether.repository.LocalArtifactResult;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.LocalRepositoryManager;
 
 public class DefaultDependencyResolverTest
     extends PlexusTestCase
@@ -87,18 +87,15 @@ public class DefaultDependencyResolverTest
 
     protected MavenSession newMavenSession( MavenProject project )
     {
-        return newMavenSession( project, LegacyLocalRepositoryManager.wrap( new StubArtifactRepository( "target/local-repo" ),
-                                                                                          null ) );
+        return newMavenSession( project, LegacyLocalRepositoryManager.overlay( new StubArtifactRepository( "target/local-repo" ),
+                                                                                          null, null ) );
     }
 
-    protected MavenSession newMavenSession( MavenProject project, LocalRepositoryManager repositoryManager )
+    protected MavenSession newMavenSession( MavenProject project, RepositorySystemSession repoSession )
     {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         MavenExecutionResult result = new DefaultMavenExecutionResult();
 
-        MavenRepositorySystemSession repoSession = new MavenRepositorySystemSession();
-        
-        repoSession.setLocalRepositoryManager( repositoryManager );
         MavenSession session = new MavenSession( getContainer(), repoSession, request, result );
         session.setCurrentProject( project );
         session.setProjects( Arrays.asList( project ) );
@@ -116,7 +113,7 @@ public class DefaultDependencyResolverTest
                         Object[] arguments = EasyMock.getCurrentArguments();
                         LocalArtifactRequest localArtifactRequest = (LocalArtifactRequest) arguments[1];
                         LocalArtifactResult result = new LocalArtifactResult( localArtifactRequest );
-                        org.sonatype.aether.artifact.Artifact artifact = localArtifactRequest.getArtifact();
+                        org.eclipse.aether.artifact.Artifact artifact = localArtifactRequest.getArtifact();
                         return result.setAvailable( true )
                                 .setFile( new File( artifact.getGroupId() + '.' + artifact.getArtifactId() + '.'
                                         + artifact.getVersion() + '.' + artifact.getExtension() ) );
@@ -144,7 +141,7 @@ public class DefaultDependencyResolverTest
                     }
                 } ).atLeastOnce();
         defaultArtifactDescriptorReader.setModelBuilder( modelBuilder );
-        return newMavenSession( project, mock );
+        return newMavenSession( project, new DefaultRepositorySystemSession().setLocalRepositoryManager( mock ) );
     }
 
     public void test_getDependencySetResolutionRequirements_transitive ()

@@ -49,8 +49,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
-import org.sonatype.aether.util.DefaultRepositorySystemSession;
-import org.sonatype.aether.util.graph.selector.StaticDependencySelector;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.util.graph.selector.StaticDependencySelector;
 
 /**
  * @author jdcasey
