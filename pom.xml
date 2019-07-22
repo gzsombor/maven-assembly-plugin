@@ -315,6 +315,28 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-shade-plugin</artifactId>
+         <version>3.2.1</version>
+         <executions>
+             <execution>
+                 <phase>package</phase>
+                 <goals>
+                     <goal>shade</goal>
+                 </goals>
+                 <configuration>
+                     <artifactSet>
+                         <includes>
+                            <include>org.sonatype.aether:aether-api</include>
+                            <include>org.apache.maven:maven-dependency-tree</include>
+                            <include>org.sonatype.aether:aether-util</include>
+                         </includes>
+                     </artifactSet>
+                 </configuration>
+             </execution>
+         </executions>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
